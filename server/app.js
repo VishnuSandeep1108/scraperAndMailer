@@ -1,3 +1,7 @@
+const express = require("express");
+const socket = require("socket.io");
+const cors = require("cors");
+
 const axios = require("axios");
 const cheerio = require("cheerio");
 const mongoose = require("mongoose");
@@ -6,13 +10,10 @@ const fs = require("fs");
 const path = require("path");
 const nodemailer = require('nodemailer');
 
-const express = require("express");
-const socket = require("socket.io");
-const cors = require("cors");
 
 const app = express();
-
-app.use(cors());
+  
+  app.use(cors());
 
 mongoose.connect("mongodb://0.0.0.0:27017/NITANoticeDB");
 
@@ -51,7 +52,8 @@ io.on("connection", (socket)=>{
 })
 
 
-const noticesInDB = [];
+const noticeTitlesInDB = [];
+// const noticesInDB = [];
 
 const url = "https://www.nita.ac.in/userpanel/StudentNotification.aspx";
 const basePDFURL = "https://www.nita.ac.in/userpanel/";
@@ -77,7 +79,7 @@ axios.get(url).then((response)=>{
             if(rownum%2 === 0)
             {
                 examNoticeTitles.push($(rowElement).text().trim());
-                noticesInDB.push($(rowElement).text().trim());
+                noticeTitlesInDB.push($(rowElement).text().trim());
             }
 
             else
@@ -115,16 +117,17 @@ axios.get(url).then((response)=>{
                             tag: "Examination"
                         });
             
-                        newNotice.save();
+                        // newNotice.save();
+                        // noticesInDB.push(newNotice);
                 
 
                 indexOfNotice++;
             }
         }
 
-        findExistingEXAMNotices();
+        // findExistingEXAMNotices();
 
-        console.log("Populated NITANoticeDB with Initial EXAM Data");
+        console.log("Populated NoticeTitlesInDB with Initial EXAM Data");
 
 
         /**********---UG Notices***********/
@@ -147,7 +150,7 @@ axios.get(url).then((response)=>{
             if(rownum%2 === 0)
             {
                 UGNoticeTitles.push($(rowElement).text().trim());
-                noticesInDB.push($(rowElement).text().trim());
+                noticeTitlesInDB.push($(rowElement).text().trim());
             }
 
             else
@@ -187,7 +190,8 @@ axios.get(url).then((response)=>{
                             tag: "UG"
                         });
             
-                        newNotice.save();
+                        // newNotice.save();
+                        // noticesInDB.push(newNotice);
                     }
                 })
 
@@ -195,9 +199,9 @@ axios.get(url).then((response)=>{
             }
         }
 
-        findExistingUGNotices();
+        // findExistingUGNotices();
 
-        console.log("Populated NITANoticeDB with Initial UG Data");
+        console.log("Populated NoticeTitlesInDB with Initial UG Data");
         
         /**********---UG Notices End***********/
 
@@ -222,7 +226,7 @@ axios.get(url).then((response)=>{
             if(rownum%2 === 0)
             {
                 hostelNoticeTitles.push($(rowElement).text().trim());
-                noticesInDB.push($(rowElement).text().trim());
+                noticeTitlesInDB.push($(rowElement).text().trim());
             }
 
             else
@@ -260,16 +264,17 @@ axios.get(url).then((response)=>{
                             tag: "Hostel"
                         });
             
-                        newNotice.save();
+                        // newNotice.save();
+                        // noticesInDB.push(newNotice);
                 
 
                 indexOfNotice++;
             }
         }
 
-        findExistingHOSTELNotices();
+        // findExistingHOSTELNotices();
 
-        console.log("Populated NITANoticeDB with Initial HOSTEL Data");
+        console.log("Populated NoticeTitlesInDB with Initial HOSTEL Data");
 
         /**********---Hostel Notices End***********/
 
@@ -294,7 +299,7 @@ axios.get(url).then((response)=>{
             if(rownum%2 === 0)
             {
                 scholarshipNoticeTitles.push($(rowElement).text().trim());
-                noticesInDB.push($(rowElement).text().trim());
+                noticeTitlesInDB.push($(rowElement).text().trim());
             }
 
             else
@@ -332,16 +337,17 @@ axios.get(url).then((response)=>{
                             tag: "Scholarship"
                         });
             
-                        newNotice.save();
+                        // newNotice.save();
+                        // noticesInDB.push(newNotice);
                 
 
                 indexOfNotice++;
             }
         }
 
-        findExistingSCHOLARSHIPNotices();
+        // findExistingSCHOLARSHIPNotices();
 
-        console.log("Populated NITANoticeDB with Initial SCHOLARSHIP Data");
+        console.log("Populated NoticeTitlesInDB with Initial SCHOLARSHIP Data");
 
         /**********---Scholarship Notices End***********/
     }
@@ -379,7 +385,7 @@ axios.get(url).then((response)=>{
 
 /* Checking Periodically For New Notices */
     
-    const interval = 2000; 
+    const interval = 3600000; 
 
     async function fetchDataAndMail() {
         try {
@@ -424,9 +430,9 @@ axios.get(url).then((response)=>{
                 let indx=0;
 
                 freshExamNoticeTitles.map((title)=>{
-                    if(!noticesInDB.includes(title))
+                    if(!noticeTitlesInDB.includes(title))
                     {
-                        noticesInDB.push(title);
+                        noticeTitlesInDB.push(title);
                         uniqueExamIndices.push(indx);
                     }
 
@@ -445,7 +451,8 @@ axios.get(url).then((response)=>{
                     })
 
                     uniqueExamNotices.push(newNotice);
-                    newNotice.save();     
+                    // newNotice.save();   
+                    // noticesInDB.push(newNotice);  
                     
                     uniqueIndicesIterator++;
                 }
@@ -487,9 +494,9 @@ axios.get(url).then((response)=>{
                 indx=0;
 
                 freshUGNoticeTitles.map((title)=>{
-                    if(!noticesInDB.includes(title))
+                    if(!noticeTitlesInDB.includes(title))
                     {
-                        noticesInDB.push(title);
+                        noticeTitlesInDB.push(title);
                         uniqueUGIndices.push(indx);
                     }
 
@@ -508,7 +515,8 @@ axios.get(url).then((response)=>{
                     })
 
                     uniqueUGNotices.push(newNotice);
-                    newNotice.save();     
+                    // newNotice.save();   
+                    // noticesInDB.push(newNotice);  
                     
                     uniqueIndicesIterator++;
                 }
@@ -555,9 +563,9 @@ axios.get(url).then((response)=>{
                 indx=0;
 
                 freshHostelNoticeTitles.map((title)=>{
-                    if(!noticesInDB.includes(title))
+                    if(!noticeTitlesInDB.includes(title))
                     {
-                        noticesInDB.push(title);
+                        noticeTitlesInDB.push(title);
                         uniqueHostelIndices.push(indx);
                     }
 
@@ -577,7 +585,8 @@ axios.get(url).then((response)=>{
                     })
 
                     uniqueHostelNotices.push(newNotice);
-                    newNotice.save();     
+                    // newNotice.save();   
+                    // noticesInDB.push(newNotice);  
                     
                     uniqueIndicesIterator++;
                 }
@@ -627,9 +636,9 @@ axios.get(url).then((response)=>{
                 indx=0;
 
                 freshScholarshipNoticeTitles.map((title)=>{
-                    if(!noticesInDB.includes(title))
+                    if(!noticeTitlesInDB.includes(title))
                     {
-                        noticesInDB.push(title);
+                        noticeTitlesInDB.push(title);
                         uniqueScholarshipIndices.push(indx);
                     }
 
@@ -651,7 +660,8 @@ axios.get(url).then((response)=>{
                     })
 
                     uniqueScholarshipNotices.push(newNotice);
-                    newNotice.save();     
+                    // newNotice.save();     
+                    // noticesInDB.push(newNotice);
                     
                     uniqueIndicesIterator++;
                 }
@@ -659,14 +669,14 @@ axios.get(url).then((response)=>{
                 /*********-----Scholarship Checking Ends-----************/
 
 
-                console.log("New Exam Notices");
-                console.log(uniqueExamNotices);
-                console.log("New UG Notices");
-                console.log(uniqueUGNotices);
-                console.log("New Hostel Notices");
-                console.log(uniqueHostelNotices);
-                console.log("New Scholarship Notices");
-                console.log(uniqueScholarshipNotices);
+                // console.log("New Exam Notices");
+                // console.log(uniqueExamNotices);
+                // console.log("New UG Notices");
+                // console.log(uniqueUGNotices);
+                // console.log("New Hostel Notices");
+                // console.log(uniqueHostelNotices);
+                // console.log("New Scholarship Notices");
+                // console.log(uniqueScholarshipNotices);
 
 
 
