@@ -1,0 +1,94 @@
+.App{
+    display: flex;
+    font-family: 'Lexend', sans-serif;
+    line-height: 1.5;
+}
+
+.App::before{
+    content: "";
+    background-image: url("https://upload.wikimedia.org/wikipedia/en/0/00/National_Institute_of_Technology%2C_Agartala_Logo.png");
+    background-repeat: no-repeat;
+    background-size: 900px 900px;
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      bottom: 0px;
+      left: 0px;
+      opacity: 0.09;
+    background-position: 190% 10%;
+    z-index: -1;
+}
+
+.left{
+    width: 60%;
+    text-align: justify;
+    padding: 50px;
+
+    /* border-right: 1px solid rgb(0 0 0 / 0.5); */
+
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+
+    /* box-shadow: 0 3px 50px rgb(0 0 0 / 0.5); */
+}
+
+.left h1{
+    font-family: 'Cinzel', serif;
+    font-size: 350%;
+    font-weight: bold;
+}
+
+.right{
+    width: 40%;
+    padding: 50px;
+    padding-top: 130px;
+
+    /* border-left: 1px solid gray;
+    margin-left: 2px; */
+}
+
+.right h2{
+    margin-bottom: 50px;
+    text-align: center;
+}
+
+.mailInput{
+    margin-left: 150px;
+    border-radius: 8px;
+    padding-left: 10px;
+    height: 30px;
+    width: 200px;
+}
+
+.right h4{
+    margin-bottom: 0px;
+    margin-left: 100px;
+}
+
+.optionInput{
+    margin-left: 150px;
+    height: 20px;
+    width: 20px;
+}
+
+.option{
+    font-size: 120%;
+    font-weight: bold;
+}
+
+.right button{
+    font-size: 120%;
+    margin-top: 30px;
+    margin-left: 150px;
+    width: 150px;
+    height: 40px;
+    border: 2px solid gray;
+    border-radius: 8px;
+}
+
+.right button:hover{
+    border-bottom: 3px solid;
+    border-right: 3px solid;
+    border-bottom-color: black;
+    border-right-color: black;
+}
