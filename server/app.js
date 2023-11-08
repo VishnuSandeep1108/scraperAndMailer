@@ -10,19 +10,10 @@ const fs = require("fs");
 const path = require("path");
 const nodemailer = require('nodemailer');
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const { log } = require("console");
 
 const app = express();
 
 app.use(cors());
-
-// const uri = "mongodb+srv://admin:VsReddy4495@cluster0.s2vzatc.mongodb.net/NoticeDB?retryWrites=true&w=majority";
-
-//   async function run() {
-//     await mongoose.connect(uri);
-//   }
-
-//   run().catch(console.dir);
 
 mongoose.connect("mongodb://0.0.0.0:27017/NITANoticeDB",{useNewUrlParser: true});
 
