@@ -10,10 +10,19 @@ const fs = require("fs");
 const path = require("path");
 const nodemailer = require('nodemailer');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const { log } = require("console");
 
 const app = express();
 
 app.use(cors());
+
+// const uri = "mongodb+srv://admin:VsReddy4495@cluster0.s2vzatc.mongodb.net/NoticeDB?retryWrites=true&w=majority";
+
+//   async function run() {
+//     await mongoose.connect(uri);
+//   }
+
+//   run().catch(console.dir);
 
 mongoose.connect("mongodb://0.0.0.0:27017/NITANoticeDB",{useNewUrlParser: true});
 
@@ -39,11 +48,175 @@ const io = socket(server);
 io.on("connection", (socket)=>{
     console.log("Connection Established: "+socket.id);
 
+    const transporter = nodemailer.createTransport({
+        service: 'Gmail', 
+        auth: {
+          user: 'visaan6989@gmail.com',
+          pass: 'ahgh qdvz shix olcz',
+        },
+        tls: {
+            rejectUnauthorized: false, 
+          },
+      });
+
     socket.on("newUser", async (newUserDetails)=>{
         const {email, selectedOptions} = newUserDetails;
 
         console.log(email);
         console.log(selectedOptions);
+
+        await User.findOne({email}).then((foundUser)=>{
+            if(foundUser)
+            {
+                const mailOptions = {
+                    from: 'visaan6989@gmail.com',
+                    to: email,
+                    subject: 'MailMan got you a Post!!',
+                    html: `
+                            <!DOCTYPE html>
+                            <html lang="en">
+                            <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Welcome to Our Website</title>
+                            <style>
+                                body {
+                                font-family: Arial, sans-serif;
+                                background-color: #f2f2f2;
+                                text-align: center;
+                                padding: 20px;
+                                }
+
+                                .container {
+                                background-color: #fff;
+                                border-radius: 10px;
+                                padding: 20px;
+                                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+                                text-align: left;
+                                }
+
+                                h1 {
+                                color: #0078d4;
+                                }
+
+                                p {
+                                font-size: 16px;
+                                }
+
+                                .btn {
+                                display: inline-block;
+                                background-color: #0078d4;
+                                color: white;
+                                padding: 10px 20px;
+                                text-decoration: none;
+                                border-radius: 5px;
+                                margin-top: 20px;
+                                }
+
+                                .btn:hover {
+                                background-color: #005a9e;
+                                }
+                            </style>
+                            </head>
+                            <body>
+                            <div class="container">
+                                <h1>Welcome Back to Mailman</h1>
+                                <p>Your preferances have been saved Successfully!</p>
+                                <p>Explore our website to discover amazing features and learn more about us.</p>
+                                <a class="btn" href="https://mailman-useg.onrender.com/">Get Started</a>
+                            </div>
+                            </body>
+                            </html>
+                        `
+                    };
+                
+                    transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.error('Error sending email:', error);
+                    } else {
+                        console.log('Email sent:', info.response);
+                    }
+                });
+
+                socket.emit("editSuccess", {});
+            }
+
+            else
+            {
+                const mailOptions = {
+                    from: 'visaan6989@gmail.com',
+                    to: email,
+                    subject: 'Yay! MailMan Registration Successful!!',
+                    html: `
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Welcome to Our Website</title>
+                        <style>
+                            body {
+                            font-family: Arial, sans-serif;
+                            background-color: #f2f2f2;
+                            text-align: center;
+                            padding: 20px;
+                            }
+
+                            .container {
+                            background-color: #fff;
+                            border-radius: 10px;
+                            padding: 20px;
+                            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+                            text-align: left;
+                            }
+
+                            h1 {
+                            color: #0078d4;
+                            }
+
+                            p {
+                            font-size: 16px;
+                            }
+
+                            .btn {
+                            display: inline-block;
+                            background-color: #0078d4;
+                            color: white;
+                            padding: 10px 20px;
+                            text-decoration: none;
+                            border-radius: 5px;
+                            margin-top: 20px;
+                            }
+
+                            .btn:hover {
+                            background-color: #005a9e;
+                            }
+                        </style>
+                        </head>
+                        <body>
+                        <div class="container">
+                            <h1>Welcome to Mailman</h1>
+                            <p>Thank you for joining our community. We are excited to have you on board!</p>
+                            <p>Explore our website to discover amazing features and learn more about us.</p>
+                            <a class="btn" href="https://mailman-useg.onrender.com/">Get Started</a>
+                        </div>
+                        </body>
+                        </html>
+                    `
+
+                    };
+                
+                    transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.error('Error sending email:', error);
+                    } else {
+                        console.log('Email sent:', info.response);
+                    }
+                });
+
+                socket.emit("registerSuccess", {});
+            }
+        })
 
         let user = await User.findOneAndUpdate({ email }, { selectedOptions }, { upsert: true, new: true });
 
@@ -391,7 +564,6 @@ axios.get(url).then((response)=>{
 
     async function fetchDataAndMail() {
         try {
-
             const response = await axios.get(url);
             if (response.status === 200) {
 
@@ -750,9 +922,64 @@ axios.get(url).then((response)=>{
                         
                             const mailOptions = {
                             from: 'visaan6989@gmail.com',
-                            to: examRecipients,
+                            bcc: examRecipients,
                             subject: 'New Notice[s] regarding Examination',
-                            text: 'Attached are multiple PDF files.',
+                            html: `
+                                    <!DOCTYPE html>
+                                    <html lang="en">
+                                    <head>
+                                    <meta charset="UTF-8">
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                    <title>Welcome to Our Website</title>
+                                    <style>
+                                        body {
+                                        font-family: Arial, sans-serif;
+                                        background-color: #f2f2f2;
+                                        text-align: center;
+                                        padding: 20px;
+                                        }
+            
+                                        .container {
+                                        background-color: #fff;
+                                        border-radius: 10px;
+                                        padding: 20px;
+                                        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+                                        text-align: left;
+                                        }
+            
+                                        h1 {
+                                        color: #0078d4;
+                                        }
+            
+                                        p {
+                                        font-size: 16px;
+                                        }
+            
+                                        .btn {
+                                        display: inline-block;
+                                        background-color: #0078d4;
+                                        color: white;
+                                        padding: 10px 20px;
+                                        text-decoration: none;
+                                        border-radius: 5px;
+                                        margin-top: 20px;
+                                        }
+            
+                                        .btn:hover {
+                                        background-color: #005a9e;
+                                        }
+                                    </style>
+                                    </head>
+                                    <body>
+                                    <div class="container">
+                                        <h1>New Exam Notifications Available</h1>
+                                        <p>New notifications have been published on <a href="https://www.nita.ac.in/">NIT Agartala Website</a>. Check them out below!</p>
+                                        <p>Explore our website to discover amazing features and learn more about us.</p>
+                                        <a class="btn" href="https://mailman-useg.onrender.com/">Get Started</a>
+                                    </div>
+                                    </body>
+                                    </html>
+                            `,
                             attachments: attachments,
                             };
                         
@@ -797,9 +1024,64 @@ axios.get(url).then((response)=>{
                         
                             const mailOptions = {
                             from: 'visaan6989@gmail.com',
-                            to: UGRecipients,
+                            bcc: UGRecipients,
                             subject: 'New Notice[s] regarding UnderGraduate Program',
-                            text: 'Attached are multiple PDF files.',
+                            html: `
+                                    <!DOCTYPE html>
+                                    <html lang="en">
+                                    <head>
+                                    <meta charset="UTF-8">
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                    <title>Welcome to Our Website</title>
+                                    <style>
+                                        body {
+                                        font-family: Arial, sans-serif;
+                                        background-color: #f2f2f2;
+                                        text-align: center;
+                                        padding: 20px;
+                                        }
+            
+                                        .container {
+                                        background-color: #fff;
+                                        border-radius: 10px;
+                                        padding: 20px;
+                                        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+                                        text-align: left;
+                                        }
+            
+                                        h1 {
+                                        color: #0078d4;
+                                        }
+            
+                                        p {
+                                        font-size: 16px;
+                                        }
+            
+                                        .btn {
+                                        display: inline-block;
+                                        background-color: #0078d4;
+                                        color: white;
+                                        padding: 10px 20px;
+                                        text-decoration: none;
+                                        border-radius: 5px;
+                                        margin-top: 20px;
+                                        }
+            
+                                        .btn:hover {
+                                        background-color: #005a9e;
+                                        }
+                                    </style>
+                                    </head>
+                                    <body>
+                                    <div class="container">
+                                        <h1>New UG Notifications Available</h1>
+                                        <p>New notifications have been published on <a href="https://www.nita.ac.in/">NIT Agartala Website</a>. Check them out below!</p>
+                                        <p>Explore our website to discover amazing features and learn more about us.</p>
+                                        <a class="btn" href="https://mailman-useg.onrender.com/">Get Started</a>
+                                    </div>
+                                    </body>
+                                    </html>
+                            `,
                             attachments: attachments,
                             };
                         
@@ -844,9 +1126,64 @@ axios.get(url).then((response)=>{
                         
                             const mailOptions = {
                             from: 'visaan6989@gmail.com',
-                            to: hostelRecipients,
+                            bcc: hostelRecipients,
                             subject: 'New Notice[s] regarding Hostel',
-                            text: 'Attached are multiple PDF files.',
+                            html: `
+                                    <!DOCTYPE html>
+                                    <html lang="en">
+                                    <head>
+                                    <meta charset="UTF-8">
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                    <title>Welcome to Our Website</title>
+                                    <style>
+                                        body {
+                                        font-family: Arial, sans-serif;
+                                        background-color: #f2f2f2;
+                                        text-align: center;
+                                        padding: 20px;
+                                        }
+            
+                                        .container {
+                                        background-color: #fff;
+                                        border-radius: 10px;
+                                        padding: 20px;
+                                        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+                                        text-align: left;
+                                        }
+            
+                                        h1 {
+                                        color: #0078d4;
+                                        }
+            
+                                        p {
+                                        font-size: 16px;
+                                        }
+            
+                                        .btn {
+                                        display: inline-block;
+                                        background-color: #0078d4;
+                                        color: white;
+                                        padding: 10px 20px;
+                                        text-decoration: none;
+                                        border-radius: 5px;
+                                        margin-top: 20px;
+                                        }
+            
+                                        .btn:hover {
+                                        background-color: #005a9e;
+                                        }
+                                    </style>
+                                    </head>
+                                    <body>
+                                    <div class="container">
+                                        <h1>New Hostel Notifications Available</h1>
+                                        <p>New notifications have been published on <a href="https://www.nita.ac.in/">NIT Agartala Website</a>. Check them out below!</p>
+                                        <p>Explore our website to discover amazing features and learn more about us.</p>
+                                        <a class="btn" href="https://mailman-useg.onrender.com/">Get Started</a>
+                                    </div>
+                                    </body>
+                                    </html>
+                            `,
                             attachments: attachments,
                             };
                         
@@ -891,9 +1228,64 @@ axios.get(url).then((response)=>{
                         
                             const mailOptions = {
                             from: 'visaan6989@gmail.com',
-                            to: scholarshipRecipients,
+                            bcc: scholarshipRecipients,
                             subject: 'New Notice[s] regarding Scholarship',
-                            text: 'Attached are multiple PDF files.',
+                            html: `
+                                    <!DOCTYPE html>
+                                    <html lang="en">
+                                    <head>
+                                    <meta charset="UTF-8">
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                    <title>Welcome to Our Website</title>
+                                    <style>
+                                        body {
+                                        font-family: Arial, sans-serif;
+                                        background-color: #f2f2f2;
+                                        text-align: center;
+                                        padding: 20px;
+                                        }
+            
+                                        .container {
+                                        background-color: #fff;
+                                        border-radius: 10px;
+                                        padding: 20px;
+                                        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+                                        text-align: left;
+                                        }
+            
+                                        h1 {
+                                        color: #0078d4;
+                                        }
+            
+                                        p {
+                                        font-size: 16px;
+                                        }
+            
+                                        .btn {
+                                        display: inline-block;
+                                        background-color: #0078d4;
+                                        color: white;
+                                        padding: 10px 20px;
+                                        text-decoration: none;
+                                        border-radius: 5px;
+                                        margin-top: 20px;
+                                        }
+            
+                                        .btn:hover {
+                                        background-color: #005a9e;
+                                        }
+                                    </style>
+                                    </head>
+                                    <body>
+                                    <div class="container">
+                                        <h1>New Scholarship Notifications Available</h1>
+                                        <p>New notifications have been published on <a href="https://www.nita.ac.in/">NIT Agartala Website</a>. Check them out below!</p>
+                                        <p>Explore our website to discover amazing features and learn more about us.</p>
+                                        <a class="btn" href="https://mailman-useg.onrender.com/">Get Started</a>
+                                    </div>
+                                    </body>
+                                    </html>
+                            `,
                             attachments: attachments,
                             };
                         

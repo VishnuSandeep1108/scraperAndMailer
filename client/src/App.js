@@ -14,6 +14,40 @@ function App() {
     const selectedOptions = Array.from(document.querySelectorAll('input[name="selectedOptions"]:checked')).map(checkbox => checkbox.value);
 
     socket.emit("newUser", {email, selectedOptions});
+
+    socket.on("editSuccess",()=>{
+      const msg=document.getElementById("editmsg");
+      const mail = document.getElementsByClassName("mailInput");
+      const checkedOptions = document.getElementsByClassName("optionInput");
+
+      mail[0].value='';
+      
+      for(let i=0;i<checkedOptions.length;i++)
+      checkedOptions[i].checked=false;
+
+      msg.classList.remove('hidden');
+
+      setTimeout(()=>{
+        msg.classList.add('hidden');
+      }, 5000);
+    })
+
+    socket.on("registerSuccess", ()=>{
+      const msg = document.getElementById("registermsg");
+      const mail = document.getElementsByClassName("mailInput");
+      const checkedOptions = document.getElementsByClassName("optionInput");
+
+      mail[0].value='';
+      
+      for(let i=0;i<checkedOptions.length;i++)
+      checkedOptions[i].checked=false;
+
+      msg.classList.remove('hidden');
+
+      setTimeout(()=>{
+        msg.classList.add('hidden');
+      }, 5000);
+    })
   }
 
   return (
@@ -48,6 +82,8 @@ function App() {
         <h5>Disclaimer:<br /><p>Your Emails are used only for communicating notices, NO SPAM PROMISE!!</p></h5>
       </div>
       <div className="right">
+          <p id="editmsg" className="hidden">You have changed your Preferences Successfully!</p>
+          <p id="registermsg" className="hidden">You have Registered Successfully!</p>
           <h2>Mail Man Registration</h2>
 
           <input type="email" className="mailInput" onChange={(e)=>{updateEmail(e.target.value)}} placeholder="Enter your email"></input><br /><br />
