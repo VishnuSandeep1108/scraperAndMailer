@@ -10,46 +10,32 @@ const fs = require("fs");
 const path = require("path");
 const nodemailer = require('nodemailer');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const { log } = require("console");
 
 const app = express();
 
 app.use(cors());
 
-// const uri = "mongodb+srv://admin-vishnu:SandeepR4495@cluster0.nzm1jkt.mongodb.net/noticesUsersDB?retryWrites=true&w=majority";
+// const uri = "mongodb+srv://admin:VsReddy4495@cluster0.s2vzatc.mongodb.net/NoticeDB?retryWrites=true&w=majority";
 
-// // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-// const client = new MongoClient(uri, {
-//     serverApi: {
-//       version: ServerApiVersion.v1,
-//       strict: true,
-//       deprecationErrors: true,
-//     }
-//   });
 //   async function run() {
-//     try {
-//       // Connect the client to the server	(optional starting in v4.7)
-//       await client.connect();
-//       // Send a ping to confirm a successful connection
-//       await client.db("admin").command({ ping: 1 });
-//       console.log("Pinged your deployment. You successfully connected to MongoDB!");
-//     } finally {
-//       // Ensures that the client will close when you finish/error
-//       await client.close();
-//     }
+//     await mongoose.connect(uri);
 //   }
+
 //   run().catch(console.dir);
 
 mongoose.connect("mongodb://0.0.0.0:27017/NITANoticeDB",{useNewUrlParser: true});
-const noticeSchema = {
-    title : String,
-    date: String,
-    pdfURL: String,
-    tag: String
-}
 
 const userSchema={
     email: String,
     selectedOptions: [String]
+}
+
+const noticeSchema = {
+    title: String,
+    date: String,
+    pdfURL: String,
+    tag: String  
 }
 
 const notice = mongoose.model("notice", noticeSchema);
@@ -75,7 +61,7 @@ io.on("connection", (socket)=>{
 })
 
 
-const noticeTitlesInDB = [];
+let noticeTitlesInDB = [];
 // const noticesInDB = [];
 
 const url = "https://www.nita.ac.in/userpanel/StudentNotification.aspx";
@@ -383,6 +369,8 @@ axios.get(url).then((response)=>{
 .catch((error)=>{
     console.log(error);
 })
+
+
 
 
 
